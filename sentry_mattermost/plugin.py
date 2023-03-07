@@ -113,7 +113,7 @@ class Mattermost(notify.NotificationPlugin):
     slug = 'mattermost'
     description = 'Enables notifications for Mattermost Open Source Chat'
     version = sentry_mattermost.VERSION
-    author = 'Frank Bohnsack <frank.bohnsack@gmail.com>'
+    author = 'Andre Freitas <andre.freitas@ndrive.com>'
     author_url = 'https://github.com/backbohne/sentry-mattermost'
     project_conf_form = MattermostOptionsForm
 
