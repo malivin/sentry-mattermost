@@ -26,13 +26,15 @@ from django import forms
 from django.db.models import Q
 from sentry import tagstore
 from sentry.plugins.bases import notify
+from sentry.plugins.base import Notification
+from sentry.shared_integrations.exceptions import ApiError
 
 import sentry_mattermost
 
 logger = logging.getLogger(__name__)
 
 
-def get_rules(notification, group, project):
+def get_rules(notification: Notification, group, project):
     rules = []
     for rule in notification.rules:
         rules.append(rule.label.encode('utf-8'))
@@ -85,8 +87,11 @@ class PayloadFactory:
 
 def request(url, payload):
     data = "payload=" + json.dumps(payload)
-    req = urllib.request.Request(url=url, data=data)
+    logger.debug("request: %s %s" % (url, payload))
+
+    req = urllib.request.Request(url=url, data=data.encode('utf-8'))
     response = urllib.request.urlopen(req)
+
     return response.read()
 
 
@@ -117,20 +122,23 @@ class Mattermost(notify.NotificationPlugin):
     def is_configured(self, project):
         return all((self.get_option(k, project) for k in ('webhook',)))
 
-    def notify(self, notification, raise_exception=None):
+    def notify(self, notification: Notification, raise_exception: bool = False):
         logger.debug("notify(%s)", notification)
 
-        try:
-            project = notification.event.group.project
-            if not self.is_configured(project):
-                return
+        event = notification.event
+        group = event.group
+        project = group.project
 
-            webhook = self.get_option('webhook', project)
-            payload = PayloadFactory.create(self, notification)
+        if not self.is_configured(project):
+            return
+
+        webhook = self.get_option('webhook', project)
+        payload = PayloadFactory.create(self, notification)
+
+        try:
             return request(webhook, payload)
-        except Exception as exc:
-            if raise_exception:
-                logger.exception("notify error: %s", exc)
-                raise exc
-            
+        except ApiError as exc:
             logger.critical("notify error: %s", exc)
+            if raise_exception:
+                raise exc
+        
