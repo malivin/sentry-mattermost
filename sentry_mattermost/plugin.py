@@ -19,6 +19,7 @@
 # THE SOFTWARE.
 
 import json
+import logging
 import urllib.request
 
 from django import forms
@@ -27,6 +28,8 @@ from sentry import tagstore
 from sentry.plugins.bases import notify
 
 import sentry_mattermost
+
+logger = logging.getLogger(__name__)
 
 
 def get_project_full_name(project):
@@ -121,6 +124,8 @@ class Mattermost(notify.NotificationPlugin):
         return all((self.get_option(k, project) for k in ('webhook',)))
 
     def notify(self, notification, raise_exception=None):
+        logger.debug("notify(%s)", notification)
+
         try:
             project = notification.event.group.project
             if not self.is_configured(project):
@@ -131,4 +136,7 @@ class Mattermost(notify.NotificationPlugin):
             return request(webhook, payload)
         except Exception as exc:
             if raise_exception:
+                logger.exception("notify error: %s", exc)
                 raise exc
+            
+            logger.critical("notify error: %s", exc)
