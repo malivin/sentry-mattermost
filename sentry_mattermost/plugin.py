@@ -20,7 +20,6 @@
 
 import json
 import urllib.request
-import operator
 
 from django import forms
 from django.db.models import Q
@@ -114,8 +113,8 @@ class Mattermost(notify.NotificationPlugin):
     slug = 'mattermost'
     description = 'Enables notifications for Mattermost Open Source Chat'
     version = sentry_mattermost.VERSION
-    author = 'Andre Freitas <andre.freitas@ndrive.com>'
-    author_url = 'https://github.com/NDrive/sentry-mattermost'
+    author = 'Frank Bohnsack <frank.bohnsack@gmail.com>'
+    author_url = 'https://github.com/backbohne/sentry-mattermost'
     project_conf_form = MattermostOptionsForm
 
     def is_configured(self, project):
