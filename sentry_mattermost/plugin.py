@@ -63,10 +63,10 @@ class PayloadFactory:
         project = group.project
 
         params = {
-            "title": group.message_short.encode('utf-8'),
+            "title": group.message_short,
             "link": group.get_absolute_url(),
-            "culprit": group.culprit.encode('utf-8'),
-            "project": project.get_full_name().encode("utf-8"),
+            "culprit": group.culprit,
+            "project": project.get_full_name(),
         }
 
         if plugin.get_option('include_rules', project):
@@ -121,8 +121,8 @@ class Mattermost(notify.NotificationPlugin):
     slug = 'mattermost'
     description = 'Enables notifications for Mattermost Open Source Chat'
     version = sentry_mattermost.VERSION
-    author = 'Andre Freitas <andre.freitas@ndrive.com>'
-    author_url = 'https://github.com/backbohne/sentry-mattermost'
+    author = 'malivin / Andre Freitas <andre.freitas@ndrive.com>'
+    author_url = 'https://github.com/malivin/sentry-mattermost'
     project_conf_form = MattermostOptionsForm
 
     def is_configured(self, project):
